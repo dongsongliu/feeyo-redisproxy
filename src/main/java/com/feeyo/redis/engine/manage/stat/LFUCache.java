@@ -1,8 +1,10 @@
 package com.feeyo.redis.engine.manage.stat;
 
 import com.feeyo.util.topn.Counter;
+import com.google.common.collect.Sets;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * lfu
@@ -12,19 +14,20 @@ public class LFUCache {
 
     Map<String, Integer> vals;//cache K and V
     Map<String, Integer> counts;//K and counters
-    Map<Integer, LinkedHashSet<String>> lists;//Counter and item list
+    Map<Integer, Set<String>> lists;//Counter and item list
     volatile  int cap;
     volatile int min = -1;
 
     public LFUCache(int capacity) {
         cap = capacity;
-        vals = new HashMap<>(500);
-        counts = new HashMap<>(500);
-        lists = new HashMap<>(500);
-        lists.put(1, new LinkedHashSet<String>());
+        vals = new ConcurrentHashMap<>(500);
+        counts = new ConcurrentHashMap<>(500);
+        lists = new ConcurrentHashMap<>(500);
+        Set<String> itemList = Sets.newConcurrentHashSet();
+        lists.put(1, itemList);
     }
 
-    public int get(String key) {
+    public  int get(String key) {
         if (!vals.containsKey(key))
             return -1;
         // Get the count from counts map
@@ -37,7 +40,6 @@ public class LFUCache {
 
         // when current min does not have any data, next one would be the min
         if (lists.get(count).size() == 0) {
-            lists.get(count).clear();
             if (count > 1) {
                 lists.remove(count);
             }
@@ -46,8 +48,10 @@ public class LFUCache {
             }
         }
 
-        if (!lists.containsKey(count + 1))
-            lists.put(count + 1, new LinkedHashSet<String>());
+        if (!lists.containsKey(count + 1)) {
+            Set<String> itemList = Sets.newConcurrentHashSet();
+            lists.put(count + 1, itemList);
+        }
         lists.get(count + 1).add(key);
         return vals.get(key);
     }

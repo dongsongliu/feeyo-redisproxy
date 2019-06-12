@@ -17,7 +17,7 @@ public class HotKeyCollector implements StatCollector {
     @Override
     public void onCollect(String host, String password, String cmd, String key, int requestSize, int responseSize,
                           int procTimeMills, int waitTimeMills, boolean isCommandOnly, boolean isBypass) {
-        hotKey.set(key,0);
+        hotKey.set(key,null);
     }
 
 

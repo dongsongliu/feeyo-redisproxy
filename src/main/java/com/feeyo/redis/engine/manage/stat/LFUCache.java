@@ -3,7 +3,6 @@ package com.feeyo.redis.engine.manage.stat;
 import com.feeyo.util.topn.Counter;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * lfu
@@ -13,15 +12,15 @@ public class LFUCache {
 
     Map<String, Integer> vals;//cache K and V
     Map<String, Integer> counts;//K and counters
-    Map<Integer, Set<String>> lists;//Counter and item list
+    Map<Integer, LinkedHashSet<String>> lists;//Counter and item list
     volatile  int cap;
     volatile int min = -1;
 
     public LFUCache(int capacity) {
         cap = capacity;
-        vals = new ConcurrentHashMap<>();
-        counts = new ConcurrentHashMap<>();
-        lists = new ConcurrentHashMap<>();
+        vals = new HashMap<>(500);
+        counts = new HashMap<>(500);
+        lists = new HashMap<>(500);
         lists.put(1, new LinkedHashSet<String>());
     }
 
@@ -36,9 +35,9 @@ public class LFUCache {
         lists.get(count).remove(key);
 
 
-
         // when current min does not have any data, next one would be the min
         if (lists.get(count).size() == 0) {
+            lists.get(count).clear();
             if (count > 1) {
                 lists.remove(count);
             }
@@ -53,7 +52,7 @@ public class LFUCache {
         return vals.get(key);
     }
 
-    public synchronized void set(String key, int value) {
+    public synchronized void set(String key, Integer value) {
         if (cap <= 0)
             return;
         // If key does exist, we are returning from here
@@ -63,6 +62,7 @@ public class LFUCache {
             return;
         }
         if (vals.size() >= cap) {
+
             String evit = lists.get(min).iterator().next();
             lists.get(min).remove(evit);
             vals.remove(evit);

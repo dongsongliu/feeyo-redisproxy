@@ -64,7 +64,7 @@ public class StatUtil {
 		addCollector( bigKeyCollector );
 		addCollector( bigLengthCollector );
 		addCollector( slowKeyCollector );
-        addCollector( hotKeyCollector );
+        //addCollector( hotKeyCollector );
        // addCollector( allKeyCollector );
 		
 		scheduledFuture = executorService.scheduleAtFixedRate(new Runnable() {

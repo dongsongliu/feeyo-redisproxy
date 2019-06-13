@@ -216,7 +216,7 @@ public class BigLengthCollector implements StatCollector {
                 }
             }
 
-            //
+            //1K 数据 检测一次
             if (!waitForConfirmKeyMap.containsKey(key)) {
             	//
                 if (waitForConfirmKeyMap.size() < 1000) {
@@ -245,6 +245,14 @@ public class BigLengthCollector implements StatCollector {
     @Override
     public void onSchedulePeroid(int peroid) {
         if (TimeUtil.currentTimeMillis() - lastCheckTime >= peroid * 1000 * 10) {
+            //针对 已经存在的biglength key 三分钟进行一次检测
+            ConcurrentHashMap<String, String[]> tmp = new ConcurrentHashMap<String, String[]>();
+            for (BigLength bigLength : bLengthKeyMap.values()) {
+                tmp.put(bigLength.key, new String[]{bigLength.password, bigLength.cmd, bigLength.key});
+            }
+
+            //
+            waitForConfirmKeyMap.putAll(tmp);
             detection();
         }
     }

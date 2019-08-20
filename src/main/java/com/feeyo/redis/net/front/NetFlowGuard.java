@@ -1,11 +1,11 @@
 package com.feeyo.redis.net.front;
 
+import com.feeyo.net.nio.util.TimeUtil;
+import com.feeyo.redis.config.NetFlowCfg;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-
-import com.feeyo.net.nio.util.TimeUtil;
-import com.feeyo.redis.config.NetFlowCfg;
 
 
 /*
@@ -27,7 +27,7 @@ public class NetFlowGuard {
 				NetFlowCfg cfg = entry.getValue();
 				
 				if ( cfg != null && cfg.isControl() ) {
-					Guard  guard = new Guard( cfg.getPerSecondMaxSize(), cfg.getRequestMaxSize() );
+                    Guard guard = new Guard(cfg.getPerSecondMaxSize(), cfg.getRequestMaxSize(), cfg.getPerSecondMaxCount());
 					tmpGuardMap.put(pwd, guard);
 				}
 				
@@ -63,20 +63,25 @@ public class NetFlowGuard {
 		
 		private int perSecondMaxSize;
 		private int requestMaxSize;
-		
+        private int perSecondMaxCount;
+
 		//
 		private AtomicLong[] availableSizes;
 		private int currentIndex;
-		
-		public Guard(int perSecondMaxSize, int  requestMaxSize) {
+        private AtomicLong[] availableCmdSizes;
+
+        public Guard(int perSecondMaxSize, int requestMaxSize, int perSecondMaxCount) {
 			
 			this.perSecondMaxSize = perSecondMaxSize;
 			this.requestMaxSize = requestMaxSize;
-			
+            this.perSecondMaxCount = perSecondMaxCount;
+
 			//
 			this.availableSizes = new AtomicLong[60];
+            this.availableCmdSizes = new AtomicLong[60];
 			for (int i = 0; i < availableSizes.length; i++) {
 				this.availableSizes[i] = new AtomicLong( perSecondMaxSize );
+				this.availableCmdSizes[i] = new AtomicLong( perSecondMaxCount );
 			}
 		}
 		
@@ -97,12 +102,13 @@ public class NetFlowGuard {
 							
 							// reset
 							availableSizes[tempIndex].set(perSecondMaxSize);
+                            availableCmdSizes[tempIndex].set(perSecondMaxCount);
 							currentIndex = tempIndex;
 						}
 					}
 				}
 
-				return decrement(availableSizes[currentIndex], numBytes) <= 0;
+                return decrement(availableSizes[currentIndex], numBytes) <= 0 || availableCmdSizes[currentIndex].decrementAndGet() <= 0;
 			}
 
 			return true;

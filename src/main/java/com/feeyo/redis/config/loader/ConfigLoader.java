@@ -8,11 +8,17 @@ import com.feeyo.redis.config.UserCfg;
 import com.feeyo.redis.net.backend.pool.PoolType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.io.FileInputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 
@@ -199,8 +205,10 @@ public class ConfigLoader extends AbstractConfigLoader {
 				if(perSecondMaxSize < 1048576 || requestMaxSize < 262144 ) {
 					throw new Exception(" These parameters perSecondMaxSize or requestMaxSize have errors !!");
 				}
-				
-				NetFlowCfg nfc = new NetFlowCfg(password, perSecondMaxSize , requestMaxSize, isControl);
+
+                int perSecondMaxCount = getIntAttribute(nameNodeMap, "perSecondMaxCount", Integer.MAX_VALUE);
+
+                NetFlowCfg nfc = new NetFlowCfg(password, perSecondMaxSize, requestMaxSize, isControl, perSecondMaxCount);
 				map.put(password, nfc);
 			}
 		} catch (Exception e) {

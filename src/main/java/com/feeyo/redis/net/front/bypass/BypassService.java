@@ -95,13 +95,12 @@ public class BypassService {
                         String key = frontConn.getSession().getRequestKey();
                         int requestSize = frontConn.getSession().getRequestSize();
                         long requestTimeMills = frontConn.getSession().getRequestTimeMills();
+                        long responseTimeMills = TimeUtil.currentTimeMillis();
                         int responseSize = 0;
 
 						List<RedisResponse> resps = backConn.writeToBackend(request);
 
 						if (resps != null) {
-
-							long responseTimeMills = TimeUtil.currentTimeMillis();
 
 							for (RedisResponse resp : resps)
 								responseSize += backConn.writeToFront(frontConn, resp, 0);

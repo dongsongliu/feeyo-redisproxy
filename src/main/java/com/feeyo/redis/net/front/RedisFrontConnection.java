@@ -1,15 +1,14 @@
 package com.feeyo.redis.net.front;
 
-import java.io.IOException;
-import java.nio.channels.SocketChannel;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.feeyo.net.nio.NetSystem;
 import com.feeyo.net.nio.util.TimeUtil;
 import com.feeyo.redis.config.UserCfg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.channels.SocketChannel;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 
@@ -136,7 +135,7 @@ public class RedisFrontConnection extends FrontConnection {
 		
 		if ( session != null) {
 			sbuffer.append(", cmd=").append( session.getRequestCmd() );
-			sbuffer.append(", key=").append( session.getRequestKey() != null ? new String( session.getRequestKey() ) : "" );
+			sbuffer.append(", key=").append( session.getRequestKey() != null ? session.getRequestKey()  : "" );
 		}
 		
 		sbuffer.append(", readLock=").append(  _readLock.get() );

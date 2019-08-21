@@ -1,5 +1,9 @@
 package com.feeyo.net.nio;
 
+import com.feeyo.net.nio.util.TimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -8,11 +12,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.feeyo.net.nio.util.TimeUtil;
 
 /**
  * new connection
@@ -76,13 +75,13 @@ public class Connection extends ClosableConnection {
 		    //如果全部写入成功而且写入队列为空（有可能在写入过程中又有新的Bytebuffer加入到队列），则取消注册写事件
             //否则，继续注册写事件
 			if ( noMoreData && writeQueue.isEmpty() ) {
-				if ( (processKey.isValid() && (processKey.interestOps() & SelectionKey.OP_WRITE) != 0)) {
-					disableWrite();
-				}
+                if (processKey.isValid() && ((processKey.interestOps() & SelectionKey.OP_WRITE) != 0)) {
+                    disableWrite();
+                }
 			} else {
-				if ((processKey.isValid() && (processKey.interestOps() & SelectionKey.OP_WRITE) == 0)) {
-					enableWrite(false);
-				}
+                if (processKey.isValid() && ((processKey.interestOps() & SelectionKey.OP_WRITE) == 0)) {
+                    enableWrite(false);
+                }
 			}
 			
 		} catch (IOException e) {

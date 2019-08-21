@@ -1,15 +1,12 @@
 package com.feeyo.redis.net.backend;
 
-import java.io.IOException;
-import java.nio.channels.SocketChannel;
-
+import com.feeyo.redis.net.backend.callback.BackendCallback;
+import com.feeyo.redis.net.backend.callback.SelectDbCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.feeyo.redis.net.backend.callback.BackendCallback;
-import com.feeyo.redis.net.backend.callback.SelectDbCallback;
-import com.feeyo.redis.net.front.NetFlowGuard;
-import com.feeyo.redis.net.front.RedisFrontConnection;
+import java.io.IOException;
+import java.nio.channels.SocketChannel;
 
 /**
  * REDIS 后端连接
@@ -140,16 +137,16 @@ public class RedisBackendConnection extends BackendConnection {
 	@Override
 	protected boolean flowGuard(long length) {
 
-		if (attachement != null && (attachement instanceof RedisFrontConnection)) {
-
-			RedisFrontConnection frontCon = (RedisFrontConnection) attachement;
-			NetFlowGuard netflowGuard = frontCon.getNetFlowGuard();
-			if (netflowGuard != null && netflowGuard.consumeBytes(frontCon.getPassword(), length)) {
-				LOGGER.warn("##flow clean##, backend: {} ", this);
-				this.close(" netflow problem, response clean. ");
-				return true;
-			}
-		}
+		//if (attachement != null && (attachement instanceof RedisFrontConnection)) {
+        //
+		//	RedisFrontConnection frontCon = (RedisFrontConnection) attachement;
+		//	NetFlowGuard netflowGuard = frontCon.getNetFlowGuard();
+		//	if (netflowGuard != null && netflowGuard.consumeBytes(frontCon.getPassword(), length)) {
+		//		LOGGER.warn("##flow clean##, backend: {} ", this);
+		//		this.close(" netflow problem, response clean. ");
+		//		return true;
+		//	}
+		//}
 
 		return false;
 	}
